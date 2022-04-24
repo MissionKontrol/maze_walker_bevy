@@ -168,6 +168,7 @@ dependencies = [
  "console_error_panic_hook",
  "futures",
  "js-sys",
+ "maze_walker",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "wasm-bindgen-test",
