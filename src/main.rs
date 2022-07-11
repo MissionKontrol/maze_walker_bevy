@@ -9,17 +9,45 @@ use maze_walker::*;
     const PLAYER_SIZE: (f32, f32) = (32.,32.);
 
     const MAP_SPRITE: &str = "mazes/maze(1).png";
+    const FQ_MAP_SPRITE: &str = "assets/mazes/maze(1).png";
     const MAP_SIZE: (f32, f32) = (41.,41.);
 
 //#End Region   --- Asset Constants
 
 
 fn main() {
+    let image = Pnger::new(&FQ_MAP_SPRITE);
+    let pixel_list = PixelList::new(&image.get_bytes(), image.dimensions());
+
+    let maze = Maze::new(
+        image.dimensions(),
+        &pixel_list,
+    );
+
+    let entrances = maze.find_start();
+    println!("Entrances {:?} {:?}", entrances.get_start(), entrances.get_end());
+    let path = maze.solve_maze( &entrances.get_start(), &entrances.get_end());
+
+    let mut my_path: Vec<Point> = Vec::new();
+    for point in path.into_iter() {
+        my_path.push(**point);
+    }
+
+
+
     App::new()
+        .insert_resource(MapResource(my_path))
+        .insert_resource(MapIndex(0))
         .add_plugins(DefaultPlugins)
-        .add_plugin(GreetPlugin)
+        .add_plugin(StartupPlugin)
         .run();
 }
+
+#[derive(Default, Debug)]
+struct MapResource(Vec<Point>);
+
+#[derive(Debug)]
+struct MapIndex(usize);
 
 #[derive(Component)]
 struct Actor;
@@ -28,7 +56,7 @@ struct Actor;
 struct Name(String);
 
 fn add_actors(mut commands: Commands) {
-    commands.spawn().insert(Actor).insert(Name("Epic Hero".to_string()));
+    commands.spawn().insert(Actor).insert(Name("Eric Hero".to_string()));
     println!("Greetings from add_actors");
 }
 
@@ -40,13 +68,29 @@ fn greet_from_actors(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Quer
     }
 }
 
-pub struct GreetPlugin;
+fn map_info_from_actors(map: Res<MapResource>, map_index: ResMut<MapIndex>,
+    query: Query<&Name, With<Actor>>) {
+        println!("{:?}", map);
+    }
 
-impl Plugin for GreetPlugin {
+fn print_index(map_index: Res<MapIndex>) {
+    println!("{:?}", map_index);
+}
+
+fn get_path_length(map: Res<MapResource>) {
+    println!("{:?}", map);
+}
+
+pub struct StartupPlugin;
+struct GreetTimer(Timer);
+
+
+impl Plugin for StartupPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(GreetTimer(Timer::from_seconds(2.0, true)))
         .add_startup_system(setup_system)
         .add_startup_system(add_actors)
+        .add_system(map_info_from_actors)
         .add_system(greet_from_actors);
     }
 }
@@ -80,5 +124,3 @@ fn setup_system(mut commands: Commands, asset_server: Res<AssetServer>, mut wind
         ..Default::default()
     });
 }
-
-struct GreetTimer(Timer);
