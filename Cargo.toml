@@ -18,3 +18,4 @@ opt-level = 3
 
 [dependencies]
 bevy = { version = "0.7.0", features = ["dynamic"] }
+maze_walker = { path = "./maze_walker" }
