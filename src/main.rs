@@ -9,10 +9,10 @@ use maze_walker::*;
     const PLAYER_SIZE: (f32, f32) = (32.,32.);
     const ACTOR_SCALE: f32 = 0.5;
 
-    const MAP_SPRITE: &str = "mazes/maze(8).png";
-    const FQ_MAP_SPRITE: &str = "assets/mazes/maze(8).png";
+    const MAP_SPRITE: &str = "mazes/maze(3).png";
+    const FQ_MAP_SPRITE: &str = "assets/mazes/maze(3).png";
     const MAP_SIZE: (f32, f32) = (41.,41.);
-    const MAP_SCALE: f32 = 4.;
+    const MAP_SCALE: f32 = 10.;
 
     //#End Region   --- Asset Constants
 
@@ -59,19 +59,6 @@ struct Actor;
 #[derive(Component)]
 struct Name(String);
 
-fn add_actors_system(mut commands: Commands) {
-    commands.spawn().insert(Actor).insert(Name("Eric Hero".to_string()));
-    println!("Greetings from add_actors");
-}
-
-fn greet_from_actors(time: Res<Time>, mut timer: ResMut<GreetTimer>, query: Query<&Name, With<Actor>>) {
-    if timer.0.tick(time.delta()).just_finished() {
-        for name in query.iter() {
-            print!("Hello from: {}", name.0);
-        }
-    }
-}
-
 fn print_index(map_index: Res<MapIndex>) {
     println!("{:?}", map_index);
 }
@@ -81,39 +68,43 @@ fn get_path_length(map: Res<MapResource>) {
 }
 
 pub struct StartupPlugin;
-struct GreetTimer(Timer);
+
+struct MoveTimer(Timer);
 
 impl Plugin for StartupPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(GreetTimer(Timer::from_seconds(2.0, true)))
+        app
+        .insert_resource(MoveTimer(Timer::from_seconds(0.1, true)))
         .add_startup_system(setup_system)
         .add_startup_system(actor_setup_system)
-        .add_system(move_actor_system)
-        .add_system(greet_from_actors);
+        .add_system(move_actor_system);
     }
 }
 
 fn move_actor_system(map: Res<MapResource>, mut map_index: ResMut<MapIndex>,
+    time: Res<Time>, mut timer: ResMut<MoveTimer>,
     mut query: Query<(&mut Transform, With<Actor>)>) {
-        println!("{:?}", map.0[map_index.0]);
-        let mut x = map.0[map_index.0].x as f32;
-        let mut y = map.0[map_index.0].y as f32;
-        x = x as f32 * MAP_SCALE as f32 - 200.;
-        y = 200. - y as f32 * MAP_SCALE as f32;
-
-        if map_index.0 < (map.0.len() - 1) {
-            map_index.0 += 1;
-        }
-        else {
-            map_index.0 = 0;
-        }
-
-
-        for (mut transform, actor) in query.iter_mut() {
-            dbg!(x);
-            dbg!(y);
-            if actor {
-                transform.translation = Vec3::new(x ,y ,2.0);
+        if timer.0.tick(time.delta()).just_finished() {
+            println!("{:?}", map.0[map_index.0]);
+            let mut x = map.0[map_index.0].x as f32;
+            let mut y = map.0[map_index.0].y as f32;
+            x = x as f32 * MAP_SCALE as f32 - 200.;
+            y = 200. - y as f32 * MAP_SCALE as f32;
+    
+            if map_index.0 < (map.0.len() - 1) {
+                map_index.0 += 1;
+            }
+            else {
+                map_index.0 = 0;
+            }
+    
+    
+            for (mut transform, actor) in query.iter_mut() {
+                dbg!(x);
+                dbg!(y);
+                if actor {
+                    transform.translation = Vec3::new(x ,y ,2.0);
+                }
             }
         }
 }
@@ -130,11 +121,7 @@ fn setup_system(mut commands: Commands, asset_server: Res<AssetServer>,mut map: 
     let (win_w, win_h) = (window.width(), window.height());
     window.set_position(IVec2::new(990, 108));
 
-    let start = map.0[0];
-
-    let x = start.x as f32 * MAP_SCALE as f32 - 200.;
-    let y = 200. - start.y as f32 * MAP_SCALE as f32;
-
+    // map
     commands.spawn_bundle(SpriteBundle {
         texture:  asset_server.load(MAP_SPRITE),
         transform: Transform {
@@ -159,7 +146,8 @@ fn actor_setup_system(mut commands: Commands, asset_server: Res<AssetServer>,mut
                 ..Default::default()
             },
             ..Default::default()})
-        .insert(Actor).insert(Name("Eric Hero".to_string()));
+        .insert(Actor)
+        .insert(Name("Eric Hero".to_string()));
 }
 
 fn path_to_points_system(path: Path) -> Vec<Point> {
