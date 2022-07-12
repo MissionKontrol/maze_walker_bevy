@@ -1,17 +1,15 @@
-#![allow(unused)]
-
 use bevy::prelude::*;
 use maze_walker::*;
 
 //#Region       --- Asset Constants
 
     const PLAYER_SPRITE: &str = "actors/runner_1_32.png";
-    const PLAYER_SIZE: (f32, f32) = (32.,32.);
+    // const PLAYER_SIZE: (f32, f32) = (32.,32.);
     const ACTOR_SCALE: f32 = 0.5;
 
     const MAP_SPRITE: &str = "mazes/maze(3).png";
     const FQ_MAP_SPRITE: &str = "assets/mazes/maze(3).png";
-    const MAP_SIZE: (f32, f32) = (41.,41.);
+    // const MAP_SIZE: (f32, f32) = (41.,41.);
     const MAP_SCALE: f32 = 10.;
 
     //#End Region   --- Asset Constants
@@ -29,7 +27,7 @@ fn main() {
     let entrances = maze.find_start();
     println!("Entrances {:?} {:?}", entrances.get_start(), entrances.get_end());
     let path = maze.solve_maze( &entrances.get_start(), &entrances.get_end());
-    let mut my_path = path_to_points_system(path);
+    let my_path = path_to_points_system(path);
 
     App::new()
         .insert_resource(MapResource(my_path))
@@ -45,8 +43,6 @@ fn main() {
         .run();
 }
 
-
-
 #[derive(Default, Debug)]
 struct MapResource(Vec<Point>);
 
@@ -58,14 +54,6 @@ struct Actor;
 
 #[derive(Component)]
 struct Name(String);
-
-fn print_index(map_index: Res<MapIndex>) {
-    println!("{:?}", map_index);
-}
-
-fn get_path_length(map: Res<MapResource>) {
-    println!("{:?}", map);
-}
 
 pub struct StartupPlugin;
 
@@ -98,7 +86,6 @@ fn move_actor_system(map: Res<MapResource>, mut map_index: ResMut<MapIndex>,
                 map_index.0 = 0;
             }
     
-    
             for (mut transform, actor) in query.iter_mut() {
                 dbg!(x);
                 dbg!(y);
@@ -109,16 +96,10 @@ fn move_actor_system(map: Res<MapResource>, mut map_index: ResMut<MapIndex>,
         }
 }
 
-fn map_info_from_actors(map: Res<MapResource>, map_index: ResMut<MapIndex>,
-    query: Query<&Name, With<Actor>>) {
-        println!("{:?}", map);
-    }
-
-fn setup_system(mut commands: Commands, asset_server: Res<AssetServer>,mut map: ResMut<MapResource>, mut windows: ResMut<Windows>) {
+fn setup_system(mut commands: Commands, asset_server: Res<AssetServer>, mut windows: ResMut<Windows>) {
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
 
     let window = windows.get_primary_mut().unwrap();
-    let (win_w, win_h) = (window.width(), window.height());
     window.set_position(IVec2::new(990, 108));
 
     // map
@@ -132,7 +113,7 @@ fn setup_system(mut commands: Commands, asset_server: Res<AssetServer>,mut map: 
     });
 }
 
-fn actor_setup_system(mut commands: Commands, asset_server: Res<AssetServer>,mut map: ResMut<MapResource>, mut windows: ResMut<Windows>) {
+fn actor_setup_system(mut commands: Commands, asset_server: Res<AssetServer>, map: Res<MapResource>) {
     let start = map.0[0];
 
     let x = start.x as f32 * MAP_SCALE as f32 - 200.;
