@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 use maze_walker::*;
+mod breadcrumb;
+use breadcrumb::*;
 
 //#Region       --- Asset Constants
 
@@ -12,7 +14,40 @@ const FQ_MAP_SPRITE: &str = "assets/mazes/maze(3).png";
 // const MAP_SIZE: (f32, f32) = (41.,41.);
 const MAP_SCALE: f32 = 10.;
 
+const BREADCRUMB_ATLAS: &str = "diamond 4x4.png";
+
 //#End Region   --- Asset Constants
+
+//#Region       --- Components
+#[derive(Default, Debug)]
+struct MapPath(Vec<Point>);
+
+#[derive(Debug)]
+struct MapIndex(usize);
+
+struct MapMaze(Maze);
+
+#[derive(Component)]
+struct Actor;
+
+#[derive(Component)]
+struct Name(String);
+
+#[derive(Component)]
+struct MazeEntrances (Vec<Point>);
+
+#[derive(Component, Default)]
+struct ActorPathState {
+    current_location: Point,
+    visited: Vec<Point>,
+    path: Vec<Point>,
+    start: Point,
+    end: Point,
+}
+
+struct MoveTimer(Timer);
+
+//#End Region   --- Components
 
 fn main() {
     let image = Pnger::new(&FQ_MAP_SPRITE);
@@ -55,75 +90,7 @@ impl Plugin for StartupPlugin {
     }
 }
 
-#[derive(Default, Debug)]
-struct MapPath(Vec<Point>);
 
-#[derive(Debug)]
-struct MapIndex(usize);
-
-struct MapMaze(Maze);
-
-#[derive(Component)]
-struct Actor;
-
-#[derive(Component)]
-struct Name(String);
-
-#[derive(Component)]
-struct MazeEntrances (Vec<Point>);
-
-#[derive(Component, Default)]
-struct ActorPathState {
-    current_location: Point,
-    visited: Vec<Point>,
-    path: Vec<Point>,
-    start: Point,
-    end: Point,
-}
-
-#[derive(Component)]
-struct BreadCrumbs (Vec<Point>);
-
-#[derive(Component, Deref, DerefMut)]
-struct AnimationTimer(Timer);
-
-struct MoveTimer(Timer);
-
-fn breadcrumb_setup_system(
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
- ){
-    let texture_handle = asset_server.load("diamond 4x4.png");
-    let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(115.0, 115.0), 4, 4);
-    let texture_atlas_handle = texture_atlases.add(texture_atlas);
-    commands
-        .spawn_bundle(SpriteSheetBundle {
-            texture_atlas: texture_atlas_handle,
-            transform: Transform::from_scale(Vec3::splat(6.0)),
-            ..default()
-        })
-        .insert(AnimationTimer(Timer::from_seconds(0.1, true)));
-
-}
-
-fn animate_breadcrumb_system(
-    time: Res<Time>,
-    texture_atlases: Res<Assets<TextureAtlas>>,
-    mut query: Query<(
-        &mut AnimationTimer,
-        &mut TextureAtlasSprite,
-        &Handle<TextureAtlas>,
-    )>,
-) {
-    for (mut timer, mut sprite, texture_atlas_handle) in query.iter_mut() {
-        timer.tick(time.delta());
-        if timer.just_finished() {
-            let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
-            sprite.index = (sprite.index + 1) % (texture_atlas.textures.len() - 1);     // skip last empty cell in atlas...fix
-        }
-    }
-}
 
 fn actor_solve_next_step_system(
     maze: Res<MapMaze>,
