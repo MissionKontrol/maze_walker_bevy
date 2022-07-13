@@ -7,6 +7,17 @@ struct BreadCrumbs (Vec<Point>);
 #[derive(Component, Deref, DerefMut)]
 pub struct BreadCrumbAnimationTimer(Timer);
 
+pub fn breadcrumb_spawn_system(mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut query: Query<(
+        &mut BreadCrumbAnimationTimer,
+        &mut TextureAtlasSprite,
+        &Handle<TextureAtlas>,
+    )>,){
+    
+
+}
+
 pub fn breadcrumb_setup_system(
     mut commands: Commands,
     asset_server: Res<AssetServer>,

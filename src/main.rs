@@ -50,20 +50,10 @@ struct MoveTimer(Timer);
 //#End Region   --- Components
 
 fn main() {
-    let image = Pnger::new(&FQ_MAP_SPRITE);
-    let pixel_list = PixelList::new(&image.get_bytes(), image.dimensions());
-
-    let maze = Maze::new(image.dimensions(), &pixel_list);
-
-    let (start, end) = maze.find_start();
-    println!("Entrances {:?} {:?}", start, end);
-    let path = maze.solve_maze(&start, &end);
-    let my_path = path_to_points_system(path);
+    let maze = get_maze();
 
     App::new()
-        .insert_resource(MapPath(my_path))
         .insert_resource(MapMaze(maze))
-        .insert_resource(MapIndex(0))
         .insert_resource(MazeEntrances)
         .insert_resource(WindowDescriptor {
             title: "Rust Mazer".to_string(),
@@ -74,6 +64,13 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(StartupPlugin)
         .run();
+}
+
+fn get_maze() -> Maze {
+    let image = Pnger::new(&FQ_MAP_SPRITE);
+    let pixel_list = PixelList::new(&image.get_bytes(), image.dimensions());
+
+    Maze::new(image.dimensions(), &pixel_list)
 }
 
 pub struct StartupPlugin;
