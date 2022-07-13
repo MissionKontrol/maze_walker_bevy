@@ -48,6 +48,8 @@ impl Plugin for StartupPlugin {
         app.insert_resource(MoveTimer(Timer::from_seconds(0.1, true)))
             .add_startup_system(setup_system)
             .add_startup_system(actor_setup_system)
+            .add_startup_system(breadcrumb_setup_system)
+            .add_system(animate_breadcrumb_system)
             .add_system(actor_solve_next_step_system)
             .add_system(move_actor_system);
     }
@@ -68,7 +70,7 @@ struct Actor;
 struct Name(String);
 
 #[derive(Component)]
-struct MazeEntrances(Vec<Point>);
+struct MazeEntrances (Vec<Point>);
 
 #[derive(Component, Default)]
 struct ActorPathState {
@@ -79,12 +81,54 @@ struct ActorPathState {
     end: Point,
 }
 
+#[derive(Component)]
+struct BreadCrumbs (Vec<Point>);
+
+#[derive(Component, Deref, DerefMut)]
+struct AnimationTimer(Timer);
+
 struct MoveTimer(Timer);
+
+fn breadcrumb_setup_system(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+ ){
+    let texture_handle = asset_server.load("diamond 4x4.png");
+    let texture_atlas = TextureAtlas::from_grid(texture_handle, Vec2::new(115.0, 115.0), 4, 4);
+    let texture_atlas_handle = texture_atlases.add(texture_atlas);
+    commands
+        .spawn_bundle(SpriteSheetBundle {
+            texture_atlas: texture_atlas_handle,
+            transform: Transform::from_scale(Vec3::splat(6.0)),
+            ..default()
+        })
+        .insert(AnimationTimer(Timer::from_seconds(0.1, true)));
+
+}
+
+fn animate_breadcrumb_system(
+    time: Res<Time>,
+    texture_atlases: Res<Assets<TextureAtlas>>,
+    mut query: Query<(
+        &mut AnimationTimer,
+        &mut TextureAtlasSprite,
+        &Handle<TextureAtlas>,
+    )>,
+) {
+    for (mut timer, mut sprite, texture_atlas_handle) in query.iter_mut() {
+        timer.tick(time.delta());
+        if timer.just_finished() {
+            let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
+            sprite.index = (sprite.index + 1) % (texture_atlas.textures.len() - 1);     // skip last empty cell in atlas...fix
+        }
+    }
+}
 
 fn actor_solve_next_step_system(
     maze: Res<MapMaze>,
     mut query: Query<(&mut ActorPathState, With<Actor>)>,
-) {
+ ){
     for (mut path_state, _) in query.iter_mut() {
         if path_state.current_location != path_state.end {
             let connections = maze.0.get_point_connections(&path_state.current_location);
