@@ -33,9 +33,6 @@ struct Actor;
 #[derive(Component)]
 struct Name(String);
 
-#[derive(Component)]
-struct MazeEntrances (Vec<Point>);
-
 #[derive(Component, Default)]
 struct ActorPathState {
     current_location: Point,
@@ -54,7 +51,6 @@ fn main() {
 
     App::new()
         .insert_resource(MapMaze(maze))
-        .insert_resource(MazeEntrances)
         .insert_resource(WindowDescriptor {
             title: "Rust Mazer".to_string(),
             width: 598.0,
@@ -187,12 +183,4 @@ fn actor_setup_system(mut commands: Commands, asset_server: Res<AssetServer>, ma
             start,
             end,
         });
-}
-
-fn path_to_points_system(path: Path) -> Vec<Point> {
-    let mut my_path: Vec<Point> = Vec::new();
-    for point in path.into_iter() {
-        my_path.push(**point);
-    }
-    my_path
 }
