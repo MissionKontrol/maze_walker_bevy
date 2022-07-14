@@ -19,6 +19,24 @@ pub fn actor_solve_next_step_system(
     mut query: Query<(&mut ActorPathState, &mut ActorPathGoal, With<Actor>)>,
 ) {
     for (mut path_state, mut goal, _) in query.iter_mut() {
+        if path_state.current_location == (Point{ x: 31, y: 33}) {
+            dbg!(path_state.current_location);
+            dbg!(maze.0.get_point_connections(&path_state.current_location));
+            dbg!(&path_state.visited);
+            dbg!(&path_state.path);
+
+            let next_point = maze.0.get_point_connections(&path_state.current_location)
+            .unwrap();
+
+            if let Some(point) = next_point
+            .iter()
+            .find(|x| !visited(*x, &path_state.visited)) {
+                dbg!(point);
+            }
+
+
+        }
+
         if path_state.current_location != goal.0 {
             let connections = maze
                 .0
@@ -78,11 +96,13 @@ pub fn actor_setup_system(
     map: Res<MapMaze>,
 ) {
     let (start, end) = map.0.find_start();
+    let start = Point{ x: 29, y: 37};
+    let end = Point{ x: 0, y: 1};
     dbg!(start);
     dbg!(end);
 
-    let x = end.x as f32 * MAP_SCALE as f32 - MAP_OFFSET;
-    let y = MAP_OFFSET - end.y as f32 * MAP_SCALE as f32;
+    let x = start.x as f32 * MAP_SCALE as f32 - MAP_OFFSET;
+    let y = MAP_OFFSET - start.y as f32 * MAP_SCALE as f32;
 
     commands
         .spawn_bundle(SpriteBundle {
@@ -98,7 +118,7 @@ pub fn actor_setup_system(
         .insert(Name("Eric Hero".to_string()))
         .insert(ActorPathGoal(end))
         .insert(ActorPathState {
-            current_location: end,
+            current_location: start,
             visited: Vec::new(),
             path: Vec::new(),
             start,
