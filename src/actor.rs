@@ -18,23 +18,8 @@ pub fn actor_solve_next_step_system(
     maze: Res<MapMaze>,
     mut query: Query<(&mut ActorPathState, &mut ActorPathGoal, With<Actor>)>,
 ) {
+    print!(" ");
     for (mut path_state, mut goal, _) in query.iter_mut() {
-        if path_state.current_location == (Point{ x: 31, y: 33}) {
-            dbg!(path_state.current_location);
-            dbg!(maze.0.get_point_connections(&path_state.current_location));
-            dbg!(&path_state.visited);
-            dbg!(&path_state.path);
-
-            let next_point = maze.0.get_point_connections(&path_state.current_location)
-            .unwrap();
-
-            if let Some(point) = next_point
-            .iter()
-            .find(|x| !visited(*x, &path_state.visited)) {
-                dbg!(point);
-            }
-        }
-
         if path_state.current_location != goal.0 {
             let connections = maze
                 .0
@@ -49,9 +34,10 @@ pub fn actor_solve_next_step_system(
                 path_state.path.push(**point);
                 path_state.current_location = **point;
             } else {
-                let current_location = path_state.path.pop().unwrap();
+                path_state.path.pop();  // current location
+                let current_location = path_state.path.pop().unwrap(); // last good location
                 path_state.current_location = current_location;
-                path_state.path.push(current_location);
+                path_state.path.push(current_location);  // keep it on the path
             }
         } else {
             if path_state.current_location == path_state.start {
@@ -93,14 +79,10 @@ pub fn move_actor_system(
 pub fn actor_setup_system(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    // map: Res<MapMaze>,
+    map: Res<MapMaze>,
 ) {
-    // let (start, end) = map.0.find_start();
-    let start = Point{ x: 29, y: 37};
-    let end = Point{ x: 0, y: 1};
-    dbg!(start);
-    dbg!(end);
-
+    let (start, end) = map.0.find_start();
+    
     let x = start.x as f32 * MAP_SCALE as f32 - MAP_OFFSET;
     let y = MAP_OFFSET - start.y as f32 * MAP_SCALE as f32;
 

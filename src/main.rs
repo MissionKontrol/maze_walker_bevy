@@ -11,8 +11,8 @@ use mouse::*;
 const ACTOR_SPRITE: &str = "actors/runner_1_32.png";
 // const PLAYER_SIZE: (f32, f32) = (32.,32.);
 const ACTOR_SCALE: f32 = 0.5;
-const MAP_SPRITE: &str = "mazes/maze(12a).png";
-const FQ_MAP_SPRITE: &str = "assets/mazes/maze(12a).png";
+const MAP_SPRITE: &str = "mazes/maze(12).png";
+const FQ_MAP_SPRITE: &str = "assets/mazes/maze(12).png";
 // const MAP_SIZE: (f32, f32) = (41.,41.);
 const MAP_SCALE: f32 = 10.;
 const MAP_OFFSET: f32 = 500.;
@@ -69,7 +69,6 @@ fn main() {
         maze_dimensions.width as f32 * MAP_SCALE,
         maze_dimensions.height as f32 * MAP_SCALE,
     );
-    dbg!(width, height);
 
     App::new()
         .insert_resource(MapMaze(maze))
