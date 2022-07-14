@@ -33,8 +33,6 @@ pub fn actor_solve_next_step_system(
             .find(|x| !visited(*x, &path_state.visited)) {
                 dbg!(point);
             }
-
-
         }
 
         if path_state.current_location != goal.0 {
@@ -51,7 +49,9 @@ pub fn actor_solve_next_step_system(
                 path_state.path.push(**point);
                 path_state.current_location = **point;
             } else {
-                path_state.current_location = path_state.path.pop().unwrap();
+                let current_location = path_state.path.pop().unwrap();
+                path_state.current_location = current_location;
+                path_state.path.push(current_location);
             }
         } else {
             if path_state.current_location == path_state.start {
@@ -93,9 +93,9 @@ pub fn move_actor_system(
 pub fn actor_setup_system(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    map: Res<MapMaze>,
+    // map: Res<MapMaze>,
 ) {
-    let (start, end) = map.0.find_start();
+    // let (start, end) = map.0.find_start();
     let start = Point{ x: 29, y: 37};
     let end = Point{ x: 0, y: 1};
     dbg!(start);

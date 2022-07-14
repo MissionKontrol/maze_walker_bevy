@@ -1,11 +1,11 @@
-use bevy::input::mouse::{MouseButtonInput, MouseMotion};
+use bevy::input::mouse::{MouseButtonInput};
 use bevy::prelude::*;
 use maze_walker::Point;
 
-use crate::{MapMaze, MAP_OFFSET, MAP_SCALE};
+use crate::{MapMaze, MAP_SCALE};
 
 // ANCHOR: mouse-button-input
-fn mouse_button_input(buttons: Res<Input<MouseButton>>) {
+fn _mouse_button_input(buttons: Res<Input<MouseButton>>) {
     if buttons.just_pressed(MouseButton::Left) {
         // Left button was pressed
     }
@@ -23,7 +23,7 @@ fn mouse_button_input(buttons: Res<Input<MouseButton>>) {
 // ANCHOR_END: mouse-button-input
 
 // ANCHOR: mouse-button-events
-fn mouse_button_events(mut mousebtn_evr: EventReader<MouseButtonInput>) {
+fn _mouse_button_events(mut mousebtn_evr: EventReader<MouseButtonInput>) {
     use bevy::input::ElementState;
 
     for ev in mousebtn_evr.iter() {
@@ -49,7 +49,7 @@ pub fn cursor_position(
     // For multi-window applications, you need to use a specific window ID here.
     let window = windows.get_primary().unwrap();
 
-    let (width, height) = (
+    let (_width, height) = (
         window_description.width as usize / MAP_SCALE as usize,
         window_description.height as usize / MAP_SCALE as usize,
     );
