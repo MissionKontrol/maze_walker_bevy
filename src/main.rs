@@ -60,17 +60,21 @@ pub struct ActorPathGoal(Point);
 
 pub struct MoveTimer(Timer);
 
+
 //#endregion  --- Components
 
 fn main() {
     let maze = get_maze();
+    let maze_dimensions = maze.get_dimensions();
+    let (width,height) = (maze_dimensions.width as f32 * MAP_SCALE, maze_dimensions.height as f32 * MAP_SCALE);
+    dbg!(width,height);
 
     App::new()
         .insert_resource(MapMaze(maze))
         .insert_resource(WindowDescriptor {
             title: "Rust Mazer".to_string(),
-            width: 598.0,
-            height: 676.0,
+            width,
+            height,
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
@@ -78,6 +82,7 @@ fn main() {
         .add_plugin(ActorPlugin)
         .run();
 }
+
 
 fn get_maze() -> Maze {
     let image = Pnger::new(&FQ_MAP_SPRITE);
@@ -93,6 +98,7 @@ impl Plugin for StartupPlugin {
         app.insert_resource(MoveTimer(Timer::from_seconds(0.1, true)))
             .add_startup_system(setup_system)
             .add_startup_system(breadcrumb_setup_system)
+            .add_system(cursor_position)
             .add_system(animate_breadcrumb_system);
     }
 }
