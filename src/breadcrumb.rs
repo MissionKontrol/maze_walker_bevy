@@ -12,18 +12,19 @@ pub fn breadcrumb_spawn_system(
     mut query: Query<(&ActorPathState, &ActorPathGoal, With<Actor>)>,
 ) {
     for (path, goal, _) in query.iter_mut() {
-        let (x, y) = path.current_location.to_tuple();
+        let (x,y) = path.current_location.to_tuple();
         let x = x as f32 * MAP_SCALE as f32 - MAP_OFFSET;
         let y = MAP_OFFSET - y as f32 * MAP_SCALE as f32;
-
+        
         let texture_handle;
-
+        
         if goal.0 == path.end {
             texture_handle = game_textures.breadcrumb_end.clone();
-        } else {
+        }
+        else {
             texture_handle = game_textures.breadcrumb_start.clone();
         }
-
+    
         commands
             .spawn_bundle(SpriteSheetBundle {
                 texture_atlas: texture_handle,
