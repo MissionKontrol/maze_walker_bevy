@@ -1,12 +1,11 @@
+use bevy::input::mouse::{MouseButtonInput, MouseMotion};
 use bevy::prelude::*;
-use bevy::input::mouse::{MouseMotion, MouseButtonInput};
+use maze_walker::Point;
 
-use crate::{MAP_SCALE, MAP_OFFSET};
+use crate::{MapMaze, MAP_OFFSET, MAP_SCALE};
 
 // ANCHOR: mouse-button-input
-fn mouse_button_input(
-    buttons: Res<Input<MouseButton>>,
-) {
+fn mouse_button_input(buttons: Res<Input<MouseButton>>) {
     if buttons.just_pressed(MouseButton::Left) {
         // Left button was pressed
     }
@@ -24,9 +23,7 @@ fn mouse_button_input(
 // ANCHOR_END: mouse-button-input
 
 // ANCHOR: mouse-button-events
-fn mouse_button_events(
-    mut mousebtn_evr: EventReader<MouseButtonInput>,
-) {
+fn mouse_button_events(mut mousebtn_evr: EventReader<MouseButtonInput>) {
     use bevy::input::ElementState;
 
     for ev in mousebtn_evr.iter() {
@@ -42,38 +39,34 @@ fn mouse_button_events(
 }
 // ANCHOR_END: mouse-button-events
 
-// ANCHOR: mouse-motion
-pub fn mouse_motion(
-    mut motion_evr: EventReader<MouseMotion>,
-) {
-    for ev in motion_evr.iter() {
-        println!("Mouse moved: X: {} px, Y: {} px", ev.delta.x, ev.delta.y);
-    }
-}
-// ANCHOR_END: mouse-motion
-
 pub fn cursor_position(
+    maze: Res<MapMaze>,
     windows: Res<Windows>,
     window_description: Res<WindowDescriptor>,
+    buttons: Res<Input<MouseButton>>,
 ) {
     // Games typically only have one window (the primary window).
     // For multi-window applications, you need to use a specific window ID here.
     let window = windows.get_primary().unwrap();
 
-    let (width,height) = (window_description.width as usize/ MAP_SCALE as usize,window_description.height as usize / MAP_SCALE as usize);
+    let (width, height) = (
+        window_description.width as usize / MAP_SCALE as usize,
+        window_description.height as usize / MAP_SCALE as usize,
+    );
 
-    if let Some(_position) = window.cursor_position() {
-        dbg!(_position);
+    if buttons.just_pressed(MouseButton::Left) {
+        if let Some(position) = window.cursor_position() {
+            let point = Point {
+                x: position[0] as usize / MAP_SCALE as usize,
+                y: height - (position[1] as usize / MAP_SCALE as usize + 1),
+            };
+            dbg!(point);
 
-        let x =_position[0] as usize / MAP_SCALE as usize;
-        let y = height - (_position[1] as usize / MAP_SCALE as usize + 1);
-        dbg!(x,y);
+            if let Some(connections) = maze.0.get_point_connections(&point) {
+                dbg!(connections);
+            }
         } else {
-        // cursor is not inside the window
+            // cursor is not inside the window
+        }
     }
-}
-
-
-fn window_to_maze_coords(width: usize, height: usize) {
-    
 }

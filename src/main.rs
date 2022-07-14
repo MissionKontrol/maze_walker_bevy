@@ -60,14 +60,16 @@ pub struct ActorPathGoal(Point);
 
 pub struct MoveTimer(Timer);
 
-
 //#endregion  --- Components
 
 fn main() {
     let maze = get_maze();
     let maze_dimensions = maze.get_dimensions();
-    let (width,height) = (maze_dimensions.width as f32 * MAP_SCALE, maze_dimensions.height as f32 * MAP_SCALE);
-    dbg!(width,height);
+    let (width, height) = (
+        maze_dimensions.width as f32 * MAP_SCALE,
+        maze_dimensions.height as f32 * MAP_SCALE,
+    );
+    dbg!(width, height);
 
     App::new()
         .insert_resource(MapMaze(maze))
@@ -82,7 +84,6 @@ fn main() {
         .add_plugin(ActorPlugin)
         .run();
 }
-
 
 fn get_maze() -> Maze {
     let image = Pnger::new(&FQ_MAP_SPRITE);

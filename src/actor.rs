@@ -20,7 +20,10 @@ pub fn actor_solve_next_step_system(
 ) {
     for (mut path_state, mut goal, _) in query.iter_mut() {
         if path_state.current_location != goal.0 {
-            let connections = maze.0.get_point_connections(&path_state.current_location);
+            let connections = maze
+                .0
+                .get_point_connections(&path_state.current_location)
+                .unwrap();
             let next_point = connections
                 .iter()
                 .find(|x| !visited(*x, &path_state.visited));
@@ -35,8 +38,7 @@ pub fn actor_solve_next_step_system(
         } else {
             if path_state.current_location == path_state.start {
                 goal.0 = path_state.end;
-            }
-            else { 
+            } else {
                 goal.0 = path_state.start;
             }
             path_state.visited.clear();
