@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashMap};
 use maze_walker::*;
 mod breadcrumb;
 use breadcrumb::*;
@@ -39,6 +39,9 @@ struct MapPath(Vec<Point>);
 struct MapIndex(usize);
 
 pub struct MapMaze(Maze);
+
+#[derive(Default)]
+pub struct BreadCrumbMap(HashMap<Point,bool>);
 
 #[derive(Component)]
 pub struct Actor;
