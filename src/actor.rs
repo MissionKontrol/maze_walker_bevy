@@ -106,4 +106,25 @@ pub fn actor_setup_system(
             start,
             end,
         });
+
+        commands
+        .spawn_bundle(SpriteBundle {
+            texture: asset_server.load(ACTOR_SPRITE),
+            transform: Transform {
+                scale: Vec3::new(ACTOR_SCALE, ACTOR_SCALE, 1.),
+                translation: Vec3::new(x, y, 2.0),
+                ..Default::default()
+            },
+            ..Default::default()
+        })
+        .insert(Actor)
+        .insert(Name("Eric II Hero".to_string()))
+        .insert(ActorPathGoal(end))
+        .insert(ActorPathState {
+            current_location: end,
+            visited: Vec::new(),
+            path: Vec::new(),
+            start,
+            end,
+        });
 }
