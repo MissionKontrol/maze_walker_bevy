@@ -9,11 +9,13 @@ use actor::*;
 const ACTOR_SPRITE: &str = "actors/runner_1_32.png";
 // const PLAYER_SIZE: (f32, f32) = (32.,32.);
 const ACTOR_SCALE: f32 = 0.5;
-const MAP_SPRITE: &str = "mazes/maze(3).png";
-const FQ_MAP_SPRITE: &str = "assets/mazes/maze(3).png";
+const MAP_SPRITE: &str = "mazes/maze(12).png";
+const FQ_MAP_SPRITE: &str = "assets/mazes/maze(12).png";
 // const MAP_SIZE: (f32, f32) = (41.,41.);
 const MAP_SCALE: f32 = 10.;
-const BREADCRUMB_ATLAS: &str = "diamond 4x4.png";
+const MAP_OFFSET: f32 = 500.;
+const BREADCRUMB_ATLAS_END: &str = "diamond 4x4.png";
+const BREADCRUMB_ATLAS_START: &str = "emerald-115-Sheet.png";
 const BREADCRUMB_GRID_X: f32 = 115.;
 const BREADCRUMB_GRID_Y: f32 = 115.;
 const BREADCRUMB_COLS: usize = 4;
@@ -22,7 +24,8 @@ const BREADCRUMB_ROWS: usize = 4;
 
 //#region       --- Resources
 pub struct GameTextures {
-    breadcrumb: Handle<TextureAtlas>,
+    breadcrumb_end: Handle<TextureAtlas>,
+    breadcrumb_start: Handle<TextureAtlas>,
 }
 //#endregion     --- Resources
 
@@ -49,6 +52,9 @@ pub struct ActorPathState {
     start: Point,
     end: Point,
 }
+
+#[derive(Component)]
+pub struct ActorPathGoal(Point);
 
 pub struct MoveTimer(Timer);
 
@@ -84,10 +90,8 @@ impl Plugin for StartupPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(MoveTimer(Timer::from_seconds(0.1, true)))
             .add_startup_system(setup_system)
-            // .add_startup_system(actor_setup_system)
             .add_startup_system(breadcrumb_setup_system)
             .add_system(animate_breadcrumb_system);
-            // .add_system(breadcrumb_spawn_system);
     }
 }
 

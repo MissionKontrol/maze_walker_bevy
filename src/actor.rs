@@ -16,10 +16,10 @@ impl Plugin for ActorPlugin {
 
 pub fn actor_solve_next_step_system(
     maze: Res<MapMaze>,
-    mut query: Query<(&mut ActorPathState, With<Actor>)>,
+    mut query: Query<(&mut ActorPathState, &mut ActorPathGoal, With<Actor>)>,
 ) {
-    for (mut path_state, _) in query.iter_mut() {
-        if path_state.current_location != path_state.end {
+    for (mut path_state, mut goal, _) in query.iter_mut() {
+        if path_state.current_location != goal.0 {
             let connections = maze.0.get_point_connections(&path_state.current_location);
             let next_point = connections
                 .iter()
@@ -33,9 +33,16 @@ pub fn actor_solve_next_step_system(
                 path_state.current_location = path_state.path.pop().unwrap();
             }
         } else {
-            path_state.current_location = path_state.start;
+            if path_state.current_location == path_state.start {
+                goal.0 = path_state.end;
+            }
+            else { 
+                goal.0 = path_state.start;
+            }
             path_state.visited.clear();
             path_state.path.clear();
+            let current_location = path_state.current_location;
+            path_state.path.push(current_location);
         }
     }
 }
@@ -56,8 +63,8 @@ pub fn move_actor_system(
     if timer.0.tick(time.delta()).just_finished() {
         for (mut transform, path_state, _) in query.iter_mut() {
             let (x, y) = path_state.current_location.to_tuple();
-            let x = x as f32 * MAP_SCALE as f32 - 200.;
-            let y = 200. - y as f32 * MAP_SCALE as f32;
+            let x = x as f32 * MAP_SCALE as f32 - MAP_OFFSET;
+            let y = MAP_OFFSET - y as f32 * MAP_SCALE as f32;
             transform.translation = Vec3::new(x, y, 2.0);
         }
     }
@@ -72,8 +79,8 @@ pub fn actor_setup_system(
     dbg!(start);
     dbg!(end);
 
-    let x = start.x as f32 * MAP_SCALE as f32 - 200.;
-    let y = 200. - start.y as f32 * MAP_SCALE as f32;
+    let x = end.x as f32 * MAP_SCALE as f32 - MAP_OFFSET;
+    let y = MAP_OFFSET - end.y as f32 * MAP_SCALE as f32;
 
     commands
         .spawn_bundle(SpriteBundle {
@@ -87,8 +94,9 @@ pub fn actor_setup_system(
         })
         .insert(Actor)
         .insert(Name("Eric Hero".to_string()))
+        .insert(ActorPathGoal(end))
         .insert(ActorPathState {
-            current_location: start,
+            current_location: end,
             visited: Vec::new(),
             path: Vec::new(),
             start,
