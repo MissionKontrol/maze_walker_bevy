@@ -4,6 +4,8 @@ mod breadcrumb;
 use breadcrumb::*;
 mod actor;
 use actor::*;
+mod mouse;
+use mouse::*;
 
 //#region       --- Asset Constants
 const ACTOR_SPRITE: &str = "actors/runner_1_32.png";

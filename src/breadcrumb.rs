@@ -1,8 +1,5 @@
 use crate::*;
 
-#[derive(Component, Default)]
-pub struct BreadCrumbs(Vec<Point>);
-
 #[derive(Component)]
 pub struct BreadCrumb;
 
