@@ -1,4 +1,0 @@
-[submodule "maze_walker"]
-	path = maze_walker
-	url = git@github.com:MissionKontrol/maze_walker.git
-	branch = master

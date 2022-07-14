@@ -1,6 +1,9 @@
 /target
 /tests
 /maze_walker
+maze_walker
+maze_walker/
+maze_walker/*
 .vscode
 /assets
 *.out
