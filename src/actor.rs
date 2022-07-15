@@ -82,6 +82,7 @@ pub fn actor_setup_system(
     map: Res<MapMaze>,
 ) {
     let (start, end) = map.0.find_start();
+    let end = Point{ x: 101, y: 99};
     
     let x = start.x as f32 * MAP_SCALE as f32 - MAP_OFFSET;
     let y = MAP_OFFSET - start.y as f32 * MAP_SCALE as f32;
